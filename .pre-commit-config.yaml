@@ -18,11 +18,4 @@ repos:
     rev: 23.11.0
     hooks:
       - id: black
-        always_run: true
-        exclude: ^.*\b(migrations)\b.*$
         args: ["--config", "pyproject.toml"]
-
-  - repo: https://github.com/rtts/djhtml
-    rev: 3.0.6
-    hooks:
-      - id: djhtml

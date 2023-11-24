@@ -8,21 +8,16 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 fastapi = "^0.104.1"
-black = "^23.7.0"
 ruff = "^0.0.291"
 pre-commit = "^3.4.0"
 httpx = "^0.25.1"
-
+black = "^23.11.0"
 
 [tool.black]
 target-version = ['py311']
 include = '\.pyi?$'
 line-length = 100
-exclude = '''
-/(
-  | migrations
-)/
-'''
+
 
 [tool.ruff]
 line-length = 100
