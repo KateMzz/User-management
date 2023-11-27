@@ -5,5 +5,5 @@ class BaseORMModel(BaseModel):
     """Configured BaseModel"""
 
     class Config:
-        orm_mode = True
+        from_attributes = True
         use_enum_values = True

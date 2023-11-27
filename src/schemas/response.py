@@ -1,10 +1,10 @@
 from typing import Generic, Optional, TypeVar
 
-from pydantic.generics import GenericModel
+from pydantic import BaseModel
 
 T = TypeVar("T")
 
 
-class IResponse(GenericModel, Generic[T]):
+class IResponse(BaseModel, Generic[T]):
     payload: Optional[T]
     message: Optional[str]

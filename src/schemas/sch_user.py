@@ -1,10 +1,11 @@
 from datetime import date
 from uuid import UUID
 
-from base_model import BaseORMModel
 from pydantic import EmailStr
 
 from utils.enums import UserRole
+
+from .base_model import BaseORMModel
 
 
 class UserDetail(BaseORMModel):
@@ -20,3 +21,12 @@ class UserDetail(BaseORMModel):
     created_at: date
     modified_at: date
     group: str
+
+
+class UserCreate(BaseORMModel):
+    name: str
+    surname: str
+    username: str
+    phone_number: str
+    email: EmailStr
+    hashed_password: str
