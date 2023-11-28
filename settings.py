@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     HOST: str
     PORT: int
     DB_NAME: str
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_DAYS: int
 
     class Config:
         env_file = [".env", "../.env"]
