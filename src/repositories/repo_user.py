@@ -17,6 +17,6 @@ class UserRepository(AsyncBaseRepository):
         await self.session.refresh(fields)
 
     async def check_user(self, user, query_field) -> Optional[str]:
-        query = select(User.hashed_password).filter(query_field == user.credentials)
+        query = select(User.hashed_password, User.id).filter(query_field == user.credentials)
         result = (await self.session.execute(query)).one_or_none()
         return result

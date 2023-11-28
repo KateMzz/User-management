@@ -26,7 +26,7 @@ async def check_login_creds(
     )
     if not compare_password:
         return False
-    access = await generate_access_token(user_cred=user.credentials)
-    refresh = await generate_refresh_token(user_cred=user.credentials)
+    access = await generate_access_token(user_id=get_user_password[1])
+    refresh = await generate_refresh_token(user_id=get_user_password[1])
     response = LoginResponse(access_token=access.token, refresh_token=refresh.token)
     return response

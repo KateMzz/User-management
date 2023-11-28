@@ -20,9 +20,9 @@ async def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-async def generate_access_token(user_cred: str) -> AccessToken:
+async def generate_access_token(user_id: str) -> AccessToken:
     payload = {
-        "user_cred": user_cred,
+        "user_id": str(user_id),
         "exp": datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
     }
 
@@ -30,9 +30,9 @@ async def generate_access_token(user_cred: str) -> AccessToken:
     return AccessToken(token=encoded_token)
 
 
-async def generate_refresh_token(user_cred: str) -> RefreshToken:
+async def generate_refresh_token(user_id: str) -> RefreshToken:
     payload = {
-        "user_cred": user_cred,
+        "user_id": str(user_id),
         "exp": datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
     }
 
