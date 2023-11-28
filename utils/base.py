@@ -1,10 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class AsyncBaseRepository:
+class AsyncBase:
     """
-    Base class for all repositories.
-
     Define initialization method, which takes
     one argument - session to connect to database.
     """

@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 
 from src.schemas.response import IResponse
 from src.schemas.sch_user import UserCreate
-from src.services.auth.svc_signup import create_user_with_hashedpass
+from src.services.auth.svc_signup import UserService
 from utils.db_connection import get_async_session
 
 router = APIRouter()
@@ -20,7 +20,7 @@ router = APIRouter()
 async def create_new_user(
     session: AsyncSession = Depends(get_async_session), user=Depends(UserCreate)
 ) -> JSONResponse:
-    await create_user_with_hashedpass(user, session)
+    await UserService(session).create_user_with_hashedpass(user)
     return JSONResponse(
         status_code=status.HTTP_201_CREATED, content={"message": "User created successfully"}
     )
