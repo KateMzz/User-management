@@ -1,7 +1,7 @@
 from src.models.models import User
 from src.repositories.repo_user import UserRepository
 from src.schemas.sch_user import UserCreate
-from src.services.auth.svc_login import AuthService
+from src.services.auth.auth_service import AuthService
 from utils.base import AsyncBase
 
 

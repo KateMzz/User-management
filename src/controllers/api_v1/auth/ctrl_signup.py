@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 
 from src.schemas.response import IResponse
 from src.schemas.sch_user import UserCreate
-from src.services.auth.svc_signup import UserService
+from src.services.auth.user_service import UserService
 from utils.db_connection import get_async_session
 
 router = APIRouter()
