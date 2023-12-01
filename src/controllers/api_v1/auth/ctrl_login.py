@@ -4,7 +4,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from src.schemas.response import IResponse
-from src.schemas.sch_user import LoginRequest, LoginResponse
+from src.schemas.sch_user import LoginRequest, TokenResponse
 from src.services.auth.auth_service import AuthService
 from utils.db_connection import get_async_session
 
@@ -14,7 +14,7 @@ router = APIRouter()
 @router.post(
     path="/login",
     status_code=status.HTTP_200_OK,
-    response_model=IResponse[LoginResponse],
+    response_model=IResponse[TokenResponse],
     responses={200: {"description": "Success!"}, 400: {"description": "wrong credentials"}},
 )
 async def create_new_user(
@@ -25,10 +25,7 @@ async def create_new_user(
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST, content={"message": "User not found"}
         )
-    access_token = user.access_token
-    refresh_token = user.refresh_token
-
     return JSONResponse(
         status_code=status.HTTP_200_OK,
-        content={"access_token": access_token, "refresh_token": refresh_token},
+        content={"access_token": user.access_token, "refresh_token": user.refresh_token},
     )
