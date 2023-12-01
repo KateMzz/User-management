@@ -1,6 +1,6 @@
 import re
-from datetime import date
-from typing import Union
+from datetime import datetime
+from typing import Optional, Union
 from uuid import UUID
 
 from pydantic import EmailStr, field_validator, model_validator
@@ -18,11 +18,11 @@ class UserDetail(BaseORMModel):
     phone_number: str
     email: EmailStr
     role: UserRole
-    image_path: str
+    image_path: Optional[str]
     is_blocked: bool
-    created_at: date
-    modified_at: date
-    group: str
+    created_at: datetime
+    modified_at: datetime
+    group_id: Optional[int]
 
 
 class UserCreate(BaseORMModel):
@@ -95,3 +95,10 @@ class AccessToken(BaseORMModel):
 class RefreshToken(BaseORMModel):
     token: str
     expires_in: int = settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+
+
+class ResetPasswordRequest(BaseORMModel):
+    email: EmailStr
+
+    class Config:
+        json_schema_extra = {"example": {"email": "example@gmail.com"}}

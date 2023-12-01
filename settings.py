@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
     REDIS_URL: str
+    SMTP_SERVER: str
+    SMTP_PORT: int
+    SMTP_USERNAME: str
+    SMTP_PASSWORD: str
 
     class Config:
         env_file = [".env", "../.env"]
@@ -32,6 +36,15 @@ class Settings(BaseSettings):
             f"{self.PORT}/"
             f"{self.DB_NAME}"
         )
+
+    @property
+    def smtp(self) -> dict:
+        return {
+            "server": self.SMTP_SERVER,
+            "port": self.SMTP_PORT,
+            "username": self.SMTP_USERNAME,
+            "password": self.SMTP_PASSWORD,
+        }
 
 
 @lru_cache()

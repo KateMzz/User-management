@@ -1,6 +1,10 @@
+from datetime import datetime
+from enum import Enum
 from typing import Optional
+from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.orm import class_mapper
 
 from utils.base import AsyncBase
 
@@ -20,4 +24,31 @@ class UserRepository(AsyncBase):
     async def get_user(self, user, query_field) -> Optional[str]:
         query = select(User.hashed_password, User.id).filter(query_field == user.credentials)
         result = (await self.session.execute(query)).one_or_none()
+        return result
+
+    async def get_user_by_email(self, email) -> Optional[str]:
+        query = select(User.email).filter(User.email == email)
+        result = (await self.session.execute(query)).one_or_none()
+        return result
+
+    async def row_to_dict(self, row) -> dict:
+        result = {}
+
+        for column in class_mapper(row.__class__).mapped_table.columns:
+            value = getattr(row, column.name)
+
+            if isinstance(value, Enum):
+                result[column.name] = value.value
+            elif isinstance(value, UUID):
+                result[column.name] = str(value)
+            elif isinstance(value, datetime):
+                result[column.name] = value.isoformat()
+            else:
+                result[column.name] = value
+
+        return result
+
+    async def get_user_info(self, user_id) -> Optional[str]:
+        query = select(User).filter(User.id == user_id)
+        result = (await self.session.execute(query)).scalar_one_or_none()
         return result
