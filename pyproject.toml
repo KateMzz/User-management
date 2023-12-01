@@ -22,6 +22,8 @@ uvicorn = "^0.24.0.post1"
 asyncpg = "^0.29.0"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+redis = "^5.0.1"
+aioredis = "^2.0.1"
 
 [tool.black]
 target-version = ['py311']

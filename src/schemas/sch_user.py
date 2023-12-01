@@ -82,7 +82,7 @@ class LoginRequest(BaseORMModel):
         }
 
 
-class LoginResponse(BaseORMModel):
+class TokenResponse(BaseORMModel):
     access_token: str
     refresh_token: str
 

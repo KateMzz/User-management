@@ -8,7 +8,7 @@ from passlib.context import CryptContext
 from settings import settings
 from src.models.models import User
 from src.repositories.repo_user import UserRepository
-from src.schemas.sch_user import AccessToken, LoginRequest, LoginResponse, RefreshToken
+from src.schemas.sch_user import AccessToken, LoginRequest, RefreshToken, TokenResponse
 from utils.base import AsyncBase
 
 
@@ -16,7 +16,7 @@ class AuthService(AsyncBase):
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-    async def authenticate(self, user: LoginRequest) -> Union[LoginResponse, bool]:
+    async def authenticate(self, user: LoginRequest) -> Union[TokenResponse, bool]:
         category = user.categorize_field(user.credentials)
         query_field = getattr(User, category)
         get_user_password = await UserRepository(self.session).get_user(user, query_field)
@@ -27,10 +27,8 @@ class AuthService(AsyncBase):
         )
         if not compare_password:
             return False
-        access = await self.generate_access_token(user_id=get_user_password[1])
-        refresh = await self.generate_refresh_token(user_id=get_user_password[1])
-        response = LoginResponse(access_token=access.token, refresh_token=refresh.token)
-        return response
+        user_id = get_user_password[1]
+        return await self.get_access_refresh_tokens(user_id)
 
     async def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return AuthService.pwd_context.verify(plain_password, hashed_password)
@@ -56,3 +54,21 @@ class AuthService(AsyncBase):
     async def generate_refresh_token(self, user_id: str) -> RefreshToken:
         encoded_token = await self.generate_token(user_id, days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         return RefreshToken(token=encoded_token)
+
+    async def get_user_id_from_token(self, token: str) -> str:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
+        user_id: str = payload.get("user_id")
+        return user_id
+
+    async def get_access_refresh_tokens(self, user_id: str) -> TokenResponse:
+        access = await self.generate_access_token(user_id=user_id)
+        refresh = await self.generate_refresh_token(user_id=user_id)
+        response = TokenResponse(access_token=access.token, refresh_token=refresh.token)
+        return response
+
+    async def blacklist_token(self, refresh_token: str, redis, user_id: str) -> bool:
+        user_tokens = await redis.smembers(user_id)
+        if user_tokens and refresh_token in user_tokens:
+            return False
+        await redis.sadd(user_id, refresh_token)
+        return True
