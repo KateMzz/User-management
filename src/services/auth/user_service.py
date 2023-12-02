@@ -1,3 +1,6 @@
+from fastapi import HTTPException
+from starlette import status
+
 from src.models.models import User
 from src.repositories.repo_user import UserRepository
 from src.schemas.sch_user import UserCreate
@@ -21,3 +24,15 @@ class UserService(AsyncBase):
         )
 
         await UserRepository(self.session).create_user(new_user)
+
+    async def get_current_user(self, token: str):
+        user_id = await AuthService(self.session).get_user_id_from_token(token=token)
+        user = await UserRepository(self.session).get_user_by_id(user_id)
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Wrong credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return user

@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Optional
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import class_mapper
 
 from utils.base import AsyncBase
@@ -31,6 +31,11 @@ class UserRepository(AsyncBase):
         result = (await self.session.execute(query)).one_or_none()
         return result
 
+    async def get_user_by_username(self, username) -> Optional[str]:
+        query = select(User).filter(User.username == username)
+        result = (await self.session.execute(query)).scalar_one_or_none()
+        return result
+
     async def row_to_dict(self, row) -> dict:
         result = {}
 
@@ -48,7 +53,20 @@ class UserRepository(AsyncBase):
 
         return result
 
-    async def get_user_info(self, user_id) -> Optional[str]:
+    async def get_user_by_id(self, user_id) -> Optional[str]:
         query = select(User).filter(User.id == user_id)
         result = (await self.session.execute(query)).scalar_one_or_none()
         return result
+
+    async def update_user(self, user_id, data):
+        query = update(User).where(User.id == user_id).values(**data)
+        await self.session.execute(query)
+        await self.session.commit()
+        res = await self.get_user_by_id(user_id)
+        return res
+
+    async def delete_user(self, user_id):
+        user = await self.session.get(User, user_id)
+        if user:
+            await self.session.delete(user)
+            await self.session.commit()

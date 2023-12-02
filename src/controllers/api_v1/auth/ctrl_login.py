@@ -1,31 +1,30 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
-from starlette.responses import JSONResponse
 
-from src.schemas.response import IResponse
-from src.schemas.sch_user import LoginRequest, TokenResponse
 from src.services.auth.auth_service import AuthService
 from utils.db_connection import get_async_session
 
 router = APIRouter()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
 
 
 @router.post(
     path="/login",
     status_code=status.HTTP_200_OK,
-    response_model=IResponse[TokenResponse],
     responses={200: {"description": "Success!"}, 400: {"description": "wrong credentials"}},
 )
-async def create_new_user(
-    session: AsyncSession = Depends(get_async_session), user_creds=Depends(LoginRequest)
-) -> JSONResponse:
-    user = await AuthService(session).authenticate(user_creds)
+async def login(
+    session: AsyncSession = Depends(get_async_session),
+    form_data: OAuth2PasswordRequestForm = Depends(),
+):
+    user = await AuthService(session).authenticate_user(form_data.username, form_data.password)
+    print(user)
     if not user:
-        return JSONResponse(
-            status_code=status.HTTP_400_BAD_REQUEST, content={"message": "User not found"}
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
         )
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"access_token": user.access_token, "refresh_token": user.refresh_token},
-    )
+    return {"access_token": user.access_token, "token_type": "bearer"}

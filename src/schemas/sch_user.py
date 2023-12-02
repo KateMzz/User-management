@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional, Union
 from uuid import UUID
 
-from pydantic import EmailStr, field_validator, model_validator
+from pydantic import EmailStr, Field, field_validator, model_validator
 
 from settings import settings
 from src.schemas.base_model import BaseORMModel
@@ -19,10 +19,16 @@ class UserDetail(BaseORMModel):
     email: EmailStr
     role: UserRole
     image_path: Optional[str]
-    is_blocked: bool
-    created_at: datetime
-    modified_at: datetime
     group_id: Optional[int]
+
+
+class UserDetailUpdate(BaseORMModel):
+    name: Optional[str]
+    surname: Optional[str]
+    username: Optional[str]
+    phone_number: Optional[str]
+    email: Optional[EmailStr]
+    modified_at: datetime = Field(default=datetime.now())
 
 
 class UserCreate(BaseORMModel):
