@@ -25,7 +25,6 @@ async def update_user_info(
 ):
     user = await UserService(session).get_current_user(token=token)
     updated_user = updated_user.model_dump()
-    print(updated_user, "!!!!!!!!!!!! ")
     update = await UserRepository(session).update_user(user_id=user.id, data=updated_user)
     updated_user_dict = await UserRepository(session).row_to_dict(row=update)
     return IResponse(
