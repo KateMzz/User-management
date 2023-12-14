@@ -38,7 +38,6 @@ class AuthService(AsyncBase):
         compare_password = await self.verify_password(password, user.hashed_password)
         if not compare_password:
             return False
-        # return await UserRepository(self.session).row_to_dict(user)
         return await self.get_access_refresh_tokens(user.id)
 
     async def get_password_hash(self, password: str) -> str:

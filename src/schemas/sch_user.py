@@ -1,6 +1,6 @@
 import re
+from datetime import datetime
 from typing import Optional, Union
-from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
@@ -10,7 +10,6 @@ from utils.enums import UserRole
 
 
 class UserDetail(BaseORMModel):
-    id: UUID
     name: str
     surname: str
     username: str
@@ -21,22 +20,22 @@ class UserDetail(BaseORMModel):
     group_id: Optional[int]
 
 
-# class UserDetailUpdate(BaseORMModel):
-#     name: Optional[str] = None
-#     surname: Optional[str] = None
-#     username: Optional[str] = None
-#     phone_number: Optional[str] = None
-#     email: Optional[EmailStr] = None
-#     modified_at: datetime = Field(default=datetime.now())
-
-
 class UserDetailUpdate(BaseORMModel):
-    name: Optional[str]
-    # surname: Optional[str]
-    # username: Optional[str]
-    # phone_number: Optional[str]
-    # email: Optional[EmailStr]
-    # modified_at: datetime = Field(default=datetime.now())
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    username: Optional[str] = None
+    phone_number: Optional[str] = None
+    email: Optional[EmailStr] = None
+    modified_at: datetime = Field(default=datetime.now())
+
+
+# class UserDetailUpdate(BaseORMModel):
+#     name: Optional[str]
+#     surname: Optional[str]
+#     username: Optional[str]
+#     phone_number: Optional[str]
+#     email: Optional[EmailStr]
+#     modified_at: datetime = Field(default=datetime.now())
 
 
 class UserCreate(BaseORMModel):

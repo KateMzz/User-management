@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
-from src.controllers.api_v1.auth.auth_error_handler import BlacklistedToken
 from src.schemas.response import IResponse
 from src.schemas.sch_user import RefreshToken, TokenResponse
 from src.services.auth.auth_service import AuthService
 from utils.db_connection import connect_to_redis, get_async_session
+from utils.error_handler import BlacklistedToken
 
 router = APIRouter()
 

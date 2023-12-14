@@ -3,11 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from starlette.responses import JSONResponse
 
-from src.controllers.api_v1.auth.auth_error_handler import UserCreateError
 from src.schemas.response import IResponse
 from src.schemas.sch_user import UserCreate
 from src.services.auth.user_service import UserService
 from utils.db_connection import get_async_session
+from utils.error_handler import UserCreateError
 
 router = APIRouter()
 

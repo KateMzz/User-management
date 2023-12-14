@@ -1,8 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
-from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from fastapi.responses import JSONResponse
-from pydantic import ValidationError
 from starlette import status
 
 from src.controllers.api_v1 import api_v1_router
@@ -22,8 +21,10 @@ def validation_exception_handler(request: Request, exc: RequestValidationError) 
     )
 
 
-@app.exception_handler(ValidationError)
-def validation_exception_handler_pydantic(request: Request, exc: ValidationError) -> JSONResponse:
+@app.exception_handler(ResponseValidationError)
+def validation_exception_handler_pydantic(
+    request: Request, exc: ResponseValidationError
+) -> JSONResponse:
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content=jsonable_encoder({"detail": exc.errors(), "body": request.path_params}),

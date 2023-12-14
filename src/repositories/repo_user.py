@@ -7,8 +7,8 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import class_mapper
 
 from utils.base import AsyncBase
+from utils.error_handler import ExceptionHandler
 
-from ..controllers.api_v1.auth.auth_error_handler import ExceptionHandler
 from ..models.models import User
 
 
@@ -60,16 +60,23 @@ class UserRepository(AsyncBase):
         return result
 
     async def get_user_by_id(self, user_id) -> Optional[str]:
-        query = select(User).filter(User.id == user_id)
-        result = (await self.session.execute(query)).scalar_one_or_none()
-        return result
+        try:
+            query = select(User).filter(User.id == user_id)
+            result = (await self.session.execute(query)).scalar_one_or_none()
+            return result
+        except Exception:
+            pass
 
     async def update_user(self, user_id, data):
-        query = update(User).where(User.id == user_id).values(**data)
-        await self.session.execute(query)
-        await self.session.commit()
-        res = await self.get_user_by_id(user_id)
-        return res
+        try:
+            query = update(User).where(User.id == user_id).values(**data)
+            await self.session.execute(query)
+            await self.session.commit()
+            res = await self.get_user_by_id(user_id)
+            return res
+        except Exception as e:
+            handler = ExceptionHandler()
+            handler.handle_unique_constraint_error(e)
 
     async def delete_user(self, user_id):
         user = await self.session.get(User, user_id)
