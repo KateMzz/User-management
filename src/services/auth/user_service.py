@@ -3,7 +3,8 @@ from starlette import status
 
 from src.models.models import User
 from src.repositories.repo_user import UserRepository
-from src.schemas.sch_user import UserCreate
+from src.schemas.response import IResponse
+from src.schemas.sch_user import UserCreate, UserDetail, UserDetailUpdate
 from src.services.auth.auth_service import AuthService
 from utils.base import AsyncBase
 
@@ -37,3 +38,17 @@ class UserService(AsyncBase):
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return user
+
+    async def update_user(self, updated_user: UserDetailUpdate, user) -> IResponse:
+        updated_user = updated_user.model_dump(exclude_none=True)
+        update = await UserRepository(self.session).update_user(user_id=user.id, data=updated_user)
+        updated_user_dict = await UserRepository(self.session).row_to_dict(row=update)
+        return IResponse(
+            payload=UserDetailUpdate(**updated_user_dict),
+            status_code=200,
+            message="User updated successfully",
+        )
+
+    async def user_detail(self, user):
+        result = await UserRepository(self.session).row_to_dict(row=user)
+        return IResponse(payload=UserDetail(**result), status_code=200, message="Success")

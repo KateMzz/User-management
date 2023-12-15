@@ -5,6 +5,7 @@ from starlette import status
 from src.repositories.repo_user import UserRepository
 from src.schemas.response import IResponse
 from src.schemas.sch_user import UserDetail
+from src.services.auth.user_service import UserService
 from utils.db_connection import get_async_session
 from utils.error_handler import UserNotFound
 from utils.permissions import RoleHandler
@@ -26,5 +27,5 @@ async def get_user_by_id(
     user = await UserRepository(session).get_user_by_id(user_id)
     if not user:
         raise UserNotFound
-    result = await UserRepository(session).row_to_dict(row=user)
-    return IResponse(payload=UserDetail(**result), status_code=200, message="Success")
+    result = await UserService(session).user_detail(user=user)
+    return result
