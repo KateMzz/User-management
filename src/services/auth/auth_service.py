@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Union
 
-from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from passlib.context import CryptContext
 
@@ -14,7 +13,6 @@ from utils.base import AsyncBase
 
 class AuthService(AsyncBase):
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
     async def authenticate(self, user: LoginRequest) -> Union[TokenResponse, bool]:
         category = user.categorize_field(user.credentials)
@@ -33,6 +31,15 @@ class AuthService(AsyncBase):
     async def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return AuthService.pwd_context.verify(plain_password, hashed_password)
 
+    async def authenticate_user(self, username: str, password: str):
+        user = await UserRepository(self.session).get_user_by_username(username=username)
+        if not user:
+            return False
+        compare_password = await self.verify_password(password, user.hashed_password)
+        if not compare_password:
+            return False
+        return await self.get_access_refresh_tokens(user.id)
+
     async def get_password_hash(self, password: str) -> str:
         return AuthService.pwd_context.hash(password)
 
@@ -45,6 +52,17 @@ class AuthService(AsyncBase):
         encoded_token = jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
         return encoded_token
 
+    async def create_access_token(data: dict, exp: timedelta | None = None):
+        to_encode = data.copy()
+        print(to_encode)
+        if exp:
+            expire = datetime.utcnow() + exp
+        else:
+            expire = datetime.utcnow() + timedelta(minutes=15)
+        to_encode.update({"exp": expire})
+        encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+        return encoded_jwt
+
     async def generate_access_token(self, user_id: str) -> AccessToken:
         encoded_token = await self.generate_token(
             user_id, days=settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -55,7 +73,7 @@ class AuthService(AsyncBase):
         encoded_token = await self.generate_token(user_id, days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         return RefreshToken(token=encoded_token)
 
-    async def get_user_id_from_token(self, token: str) -> str:
+    async def get_user_id_from_token(self, token) -> str:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
         user_id: str = payload.get("user_id")
         return user_id

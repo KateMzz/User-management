@@ -38,7 +38,6 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole, validate_strings=True, values_callable=lambda obj: [e.value for e in obj]),
-        default=UserRole.USER,
     )
     image_path: Mapped[str] = mapped_column(nullable=True)
     is_blocked: Mapped[bool] = mapped_column(default=False)

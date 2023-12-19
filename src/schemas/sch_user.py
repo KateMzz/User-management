@@ -1,9 +1,8 @@
 import re
-from datetime import date
-from typing import Union
-from uuid import UUID
+from datetime import datetime
+from typing import Optional, Union
 
-from pydantic import EmailStr, field_validator, model_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 from settings import settings
 from src.schemas.base_model import BaseORMModel
@@ -11,18 +10,32 @@ from utils.enums import UserRole
 
 
 class UserDetail(BaseORMModel):
-    id: UUID
     name: str
     surname: str
     username: str
     phone_number: str
     email: EmailStr
     role: UserRole
-    image_path: str
-    is_blocked: bool
-    created_at: date
-    modified_at: date
-    group: str
+    image_path: Optional[str]
+    group_id: Optional[int]
+
+
+class UserDetailUpdate(BaseORMModel):
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    username: Optional[str] = None
+    phone_number: Optional[str] = None
+    email: Optional[EmailStr] = None
+    modified_at: datetime = Field(default=datetime.now())
+
+
+# class UserDetailUpdate(BaseORMModel):
+#     name: Optional[str]
+#     surname: Optional[str]
+#     username: Optional[str]
+#     phone_number: Optional[str]
+#     email: Optional[EmailStr]
+#     modified_at: datetime = Field(default=datetime.now())
 
 
 class UserCreate(BaseORMModel):
@@ -33,6 +46,7 @@ class UserCreate(BaseORMModel):
     email: EmailStr
     password: str
     confirm_password: str
+    role: UserRole = Field(default=UserRole.USER)
 
     @field_validator("phone_number")
     @classmethod
@@ -95,3 +109,15 @@ class AccessToken(BaseORMModel):
 class RefreshToken(BaseORMModel):
     token: str
     expires_in: int = settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+
+
+class ResetPasswordRequest(BaseORMModel):
+    email: EmailStr
+
+    class Config:
+        json_schema_extra = {"example": {"email": "example@gmail.com"}}
+
+
+class TokenData(BaseModel):
+    username: str | None = None
+    scopes: list[str] = []

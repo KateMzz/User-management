@@ -7,6 +7,7 @@ from src.schemas.response import IResponse
 from src.schemas.sch_user import UserCreate
 from src.services.auth.user_service import UserService
 from utils.db_connection import get_async_session
+from utils.error_handler import UserCreateError
 
 router = APIRouter()
 
@@ -20,7 +21,10 @@ router = APIRouter()
 async def create_new_user(
     session: AsyncSession = Depends(get_async_session), user=Depends(UserCreate)
 ) -> JSONResponse:
-    await UserService(session).create_user_with_hashedpass(user)
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED, content={"message": "User created successfully"}
-    )
+    user = await UserService(session).create_user_with_hashedpass(user)
+    print(user)
+    if user:
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED, content={"message": "User created successfully"}
+        )
+    raise UserCreateError
