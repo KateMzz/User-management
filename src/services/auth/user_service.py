@@ -23,6 +23,7 @@ class UserService(AsyncBase):
             phone_number=user.phone_number,
             hashed_password=hashed_password,
             role=user.role,
+            group_id=user.group_id,
         )
         create_user = await UserRepository(self.session).create_user(new_user)
         return create_user
