@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import Optional, Union
 
-from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic import EmailStr, Field, field_validator, model_validator
 
 from settings import settings
 from src.schemas.base_model import BaseORMModel
@@ -29,15 +29,6 @@ class UserDetailUpdate(BaseORMModel):
     modified_at: datetime = Field(default=datetime.now())
 
 
-# class UserDetailUpdate(BaseORMModel):
-#     name: Optional[str]
-#     surname: Optional[str]
-#     username: Optional[str]
-#     phone_number: Optional[str]
-#     email: Optional[EmailStr]
-#     modified_at: datetime = Field(default=datetime.now())
-
-
 class UserCreate(BaseORMModel):
     name: str
     surname: str
@@ -47,6 +38,7 @@ class UserCreate(BaseORMModel):
     password: str
     confirm_password: str
     role: UserRole = Field(default=UserRole.USER)
+    group_id: Optional[int] = None
 
     @field_validator("phone_number")
     @classmethod
@@ -118,6 +110,12 @@ class ResetPasswordRequest(BaseORMModel):
         json_schema_extra = {"example": {"email": "example@gmail.com"}}
 
 
-class TokenData(BaseModel):
-    username: str | None = None
-    scopes: list[str] = []
+class Users(BaseORMModel):
+    name: Optional[str] = None
+    surname: Optional[str] = None
+    username: Optional[str] = None
+    phone_number: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[UserRole] = None
+    image_path: Optional[str] = None
+    group_id: Optional[int] = None
