@@ -19,11 +19,10 @@ router = APIRouter()
     responses={201: {"description": "Created"}, 500: {"description": "Internal server error"}},
 )
 async def create_new_user(
-    session: AsyncSession = Depends(get_async_session), user=Depends(UserCreate)
+    user: UserCreate, session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
-    user = await UserService(session).create_user_with_hashedpass(user)
-    print(user)
-    if user:
+    new_user = await UserService(session).create_user_with_hashedpass(user)
+    if new_user:
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content={"message": "User created successfully"}
         )

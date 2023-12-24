@@ -18,8 +18,8 @@ router = APIRouter()
     responses={200: {"description": "Success!"}, 400: {"description": "wrong credentials"}},
 )
 async def get_new_tokens(
+    refresh_token: RefreshToken,
     session: AsyncSession = Depends(get_async_session),
-    refresh_token=Depends(RefreshToken),
     redis=Depends(connect_to_redis),
 ):
     user_id = await AuthService(session).get_user_id_from_token(refresh_token.token)

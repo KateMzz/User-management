@@ -48,22 +48,10 @@ class UserCreate(BaseORMModel):
         return phone_number
 
     @model_validator(mode="after")
-    def validate_passwords(cls, instance):
-        if instance.password != instance.confirm_password:
+    def validate_passwords(self):
+        if self.password != self.confirm_password:
             raise ValueError("Passwords do not match")
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "name": "John",
-                "surname": "Doe",
-                "username": "johndoe",
-                "phone_number": "+995555555555",
-                "email": "example@gmail.com",
-                "password": "secure_password",
-                "confirm_password": "secure_password",
-            }
-        }
+        return self
 
 
 class LoginRequest(BaseORMModel):
@@ -79,7 +67,7 @@ class LoginRequest(BaseORMModel):
         elif isinstance(credentials, str):
             return "username"
 
-    class Config:
+    class ConfigDict:
         json_schema_extra = {
             "example": {
                 "credentials": "johndoe" or "+995555555555" or "example@gmail.com",
@@ -106,7 +94,7 @@ class RefreshToken(BaseORMModel):
 class ResetPasswordRequest(BaseORMModel):
     email: EmailStr
 
-    class Config:
+    class ConfigDict:
         json_schema_extra = {"example": {"email": "example@gmail.com"}}
 
 

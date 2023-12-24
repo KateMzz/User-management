@@ -1,10 +1,12 @@
 from functools import lru_cache
 
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=(".env", "../.env"), env_file_encoding="utf-8")
+
     LOGGING_LEVEL: str = Field(default="DEBUG")
     LOGGER_NAME: str = Field(default="user_manager")
     DATABASE: str
@@ -12,6 +14,7 @@ class Settings(BaseSettings):
     PASSWORD: str
     HOST: str
     PORT: int
+    TEST_DB_NAME: str
     DB_NAME: str
     SECRET_KEY: str
     ALGORITHM: str
@@ -23,9 +26,6 @@ class Settings(BaseSettings):
     SMTP_USERNAME: str
     SMTP_PASSWORD: str
 
-    class Config:
-        env_file = [".env", "../.env"]
-
     @property
     def database_url(self) -> str:
         return (
@@ -35,6 +35,17 @@ class Settings(BaseSettings):
             f"{self.HOST}:"
             f"{self.PORT}/"
             f"{self.DB_NAME}"
+        )
+
+    @property
+    def test_database_url(self) -> str:
+        return (
+            f"{self.DATABASE}://"
+            f"{self.DB_USER}:"
+            f"{self.PASSWORD}@"
+            f"{self.HOST}:"
+            f"{self.PORT}/"
+            f"{self.TEST_DB_NAME}"
         )
 
     @property

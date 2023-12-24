@@ -6,5 +6,5 @@ T = TypeVar("T")
 
 
 class IResponse(BaseModel, Generic[T]):
-    payload: Optional[T]
+    payload: T
     message: Optional[str]

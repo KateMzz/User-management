@@ -16,8 +16,7 @@ router = APIRouter()
     responses={200: {"description": "Success!"}, 400: {"description": "wrong email"}},
 )
 async def reset_password(
-    session: AsyncSession = Depends(get_async_session),
-    input=Depends(ResetPasswordRequest),
+    input: ResetPasswordRequest, session: AsyncSession = Depends(get_async_session)
 ) -> JSONResponse:
     user = await UserRepository(session).get_user_by_email(input.email)
     if not user:
