@@ -21,10 +21,14 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
     REDIS_URL: str
+    TEST_REDIS_URL: str
     SMTP_SERVER: str
     SMTP_PORT: int
     SMTP_USERNAME: str
     SMTP_PASSWORD: str
+    MODE: str
+    USER_ID: str
+    TOKEN: str
 
     @property
     def database_url(self) -> str:

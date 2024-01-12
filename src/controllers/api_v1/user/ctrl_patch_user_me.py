@@ -18,7 +18,7 @@ router = APIRouter()
     responses={200: {"description": "Success"}, 500: {"description": "Internal server error"}},
 )
 async def update_user_info(
-    updated_user=Depends(UserDetailUpdate),
+    updated_user: UserDetailUpdate,
     session: AsyncSession = Depends(get_async_session),
     token: str = Depends(oauth2_scheme),
 ):

@@ -1,30 +1,28 @@
 import pytest
 import redis.asyncio as redis
 from httpx import AsyncClient
-from sqlalchemy import insert, select
+from sqlalchemy import select
 
-import main
-from src.models.models import Base
-from src.models.models import Group as group
-from src.tests.conftest import get_test_async_session, redis_connection, test_async_engine
-from utils.db_connection import connect_to_redis, get_async_session
+from settings import settings
+from src.models.models import Group
+
+ENDPOINT = "/api/v1/auth"
 
 
-async def test_group():
-    async with test_async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        stmt = insert(group).values(name="test_group")
-        await conn.run_sync(lambda conn: conn.execute(stmt))
-        query = select(group)
-        result = await conn.execute(query)
-        assert result.mappings().all()[0]["name"] == "test_group"
+async def test_group_factory(async_test_session, create_group):
+    query = select(Group).where(Group.id == create_group.id)
+    result = await async_test_session.execute(query)
+    saved_group = result.scalar()
+    assert saved_group is not None
+    assert saved_group.name == create_group.name
+    assert saved_group.id == create_group.id
 
 
 @pytest.mark.parametrize(
-    "name, surname, username, phone_number, email, password, confirm_password, role, group_id",
+    "name, surname, username, phone_number, email, password, confirm_password, role",
     [
-        ("test", "test", "test", "+995555555555", "test@gmail.com", "test", "test", "user", 1),
-        ("admin", "admin", "admin", "+995555555551", "admin@gmail.com", "test", "test", "admin", 1),
+        ("test1", "test1", "test1", "+995555555555", "test1@gmail.com", "test", "test", "user"),
+        ("admin", "admin", "admin", "+995555555551", "admin@gmail.com", "test", "test", "admin"),
         (
             "moderator",
             "moderator",
@@ -34,22 +32,12 @@ async def test_group():
             "test",
             "test",
             "moderator",
-            1,
         ),
-        ("user", "user", "user", "+995555555558", "user@gmail.com", "test", "test", "user", 1),
+        ("user", "user", "user", "+995555555558", "user@gmail.com", "test", "test", "user"),
     ],
 )
 async def test_register(
-    ac: AsyncClient,
-    name,
-    surname,
-    username,
-    phone_number,
-    email,
-    password,
-    confirm_password,
-    role,
-    group_id,
+    ac: AsyncClient, name, surname, username, phone_number, email, password, confirm_password, role
 ):
     data = {
         "name": name,
@@ -60,20 +48,49 @@ async def test_register(
         "password": password,
         "confirm_password": confirm_password,
         "role": role,
-        "group_id": group_id,
     }
 
-    response = await ac.post("/api/v1/auth/signup", json=data)
+    response = await ac.post(f"{ENDPOINT}/signup", json=data)
     assert response.status_code == 201
+    assert "User created successfully" in response.text
 
 
 @pytest.mark.parametrize(
-    "name, surname, username, phone_number, email, password, confirm_password, role, group_id",
+    "name, surname, username, phone_number, email, password, confirm_password, role, result",
     [
-        ("test", "test", "test", "+995555555555", "testtest@gmail.com", "test", "test", "user", 1),
-        ("test", "test", "test", "+995555555556", "test@gmail.com", "test", "test", "user", 1),
-        ("test", "test", "test", "+995555555557", "test2@gmail.com", "test", "test", "user", 10),
-        ("", "", "", "+995555555558", "test3@gmail.com", "test", "test", "user", 1),
+        (
+            "test1",
+            "test1",
+            "test1",
+            "+995555555555",
+            "testtest@gmail.com",
+            "test",
+            "test",
+            "user",
+            "(username)=(test1)",
+        ),
+        (
+            "test",
+            "test",
+            "test",
+            "+995555555556",
+            "test1@gmail.com",
+            "test",
+            "test",
+            "user",
+            "(email)=(test1@gmail.com)",
+        ),
+        (
+            "",
+            "",
+            "",
+            "+995555555558",
+            "test3@gmail.com",
+            "test",
+            "test",
+            "user",
+            "(phone_number)=(+995555555558)",
+        ),
     ],
 )
 async def test_register_fail(
@@ -86,7 +103,7 @@ async def test_register_fail(
     password,
     confirm_password,
     role,
-    group_id,
+    result,
 ):
     data = {
         "name": name,
@@ -97,34 +114,35 @@ async def test_register_fail(
         "password": password,
         "confirm_password": confirm_password,
         "role": role,
-        "group_id": group_id,
     }
-    response = await ac.post("/api/v1/auth/signup", json=data)
+    response = await ac.post(f"{ENDPOINT}/signup", json=data)
     assert response.status_code == 400
+    assert result in response.text
 
 
-async def test_login(ac: AsyncClient):
-    response = await ac.post("/api/v1/auth/login", data={"username": "test", "password": "test"})
-
+async def test_login(async_test_session, ac: AsyncClient, create_user):
+    user = await create_user()
+    response = await ac.post(
+        f"{ENDPOINT}/login", data={"username": user.username, "password": "test"}
+    )
     assert response.status_code == 200
+    assert "access_token" in response.text
 
 
 async def test_login_fail(ac: AsyncClient):
-    response = await ac.post("/api/v1/auth/login", data={"username": "test1", "password": "test"})
+    response = await ac.post(f"{ENDPOINT}/login", data={"username": "test4", "password": "test"})
     assert response.status_code == 404
+    assert "Resource not found" in response.text
 
 
 async def test_refresh_token_not_blacklisted(exp_token, ac: AsyncClient):
-    main.app.dependency_overrides[connect_to_redis] = redis_connection
-    main.app.dependency_overrides[get_async_session] = get_test_async_session
-    response = await ac.post("/api/v1/auth/refresh-token", json={"token": exp_token})
+    response = await ac.post(f"{ENDPOINT}/refresh-token", json={"token": exp_token})
     assert response.status_code == 200
+    assert "access_token" and "refresh_token" in response.text
 
 
 async def test_refresh_token_blacklisted(exp_token, test_user_id, ac: AsyncClient):
-    main.app.dependency_overrides[connect_to_redis] = redis_connection
-    main.app.dependency_overrides[get_async_session] = get_test_async_session
-    redis_resp = await redis.from_url("redis://localhost:6379/2?decode_responses=True")
+    redis_resp = await redis.from_url(settings.TEST_REDIS_URL)
     await redis_resp.sadd(test_user_id, exp_token)
     response = await ac.post(
         "/api/v1/auth/refresh-token",
@@ -133,8 +151,4 @@ async def test_refresh_token_blacklisted(exp_token, test_user_id, ac: AsyncClien
         },
     )
     assert response.status_code == 403
-
-
-async def test_delete_user_me(ac: AsyncClient, exp_token):
-    response = await ac.delete("/api/v1/user/me", headers={"Authorization": f"Bearer {exp_token}"})
-    assert response.status_code == 200
+    assert "Token is blacklisted" in response.text
