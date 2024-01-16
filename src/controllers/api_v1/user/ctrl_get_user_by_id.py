@@ -18,7 +18,7 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
     response_model=IResponse[UserDetail],
     responses={200: {"description": "Success"}, 500: {"description": "Internal server error"}},
-    dependencies=[Depends(RoleHandler(role_required=["admin", "moderator"]))],
+    dependencies=[Depends(RoleHandler(role_required=["admin", "moderator"], full_access=False))],
 )
 async def get_user_by_id(
     user_id: str,

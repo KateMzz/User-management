@@ -86,7 +86,8 @@ class AuthService(AsyncBase):
 
     async def blacklist_token(self, refresh_token: str, redis, user_id: str) -> bool:
         user_tokens = await redis.smembers(user_id)
-        if user_tokens and refresh_token in user_tokens:
+
+        if refresh_token in user_tokens:
             return False
         await redis.sadd(user_id, refresh_token)
         return True

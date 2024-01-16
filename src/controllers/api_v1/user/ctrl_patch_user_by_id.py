@@ -18,12 +18,12 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
     response_model=IResponse[UserDetailUpdate],
     responses={200: {"description": "Success"}, 500: {"description": "Internal server error"}},
-    dependencies=[Depends(RoleHandler(role_required=["admin"]))],
+    dependencies=[Depends(RoleHandler(role_required=["admin"], full_access=False))],
 )
 async def change_user_info_by_id(
     user_id: str,
+    updated_user: UserDetailUpdate,
     session: AsyncSession = Depends(get_async_session),
-    updated_user=Depends(UserDetailUpdate),
 ) -> IResponse:
     user = await UserRepository(session).get_user_by_id(user_id)
     if not user:

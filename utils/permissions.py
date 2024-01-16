@@ -30,6 +30,7 @@ class RoleHandler:
             User.phone_number,
             User.group_id,
             User.image_path,
+            User.role,
         )
         if role == "admin":
             return user_info

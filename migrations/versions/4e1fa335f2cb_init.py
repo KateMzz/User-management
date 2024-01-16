@@ -1,8 +1,8 @@
 """init
 
-Revision ID: adc6780bbde7
+Revision ID: 4e1fa335f2cb
 Revises:
-Create Date: 2023-11-24 18:11:26.744214
+Create Date: 2023-12-23 14:24:12.885304
 
 """
 from typing import Sequence, Union
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "adc6780bbde7"
+revision: str = "4e1fa335f2cb"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -28,15 +28,16 @@ def upgrade() -> None:
     )
     op.create_table(
         "user",
-        sa.Column("id", sa.UUID(), nullable=False),
+        sa.Column("id", sa.Uuid(), nullable=False),
         sa.Column("name", sa.String(length=30), nullable=False),
         sa.Column("surname", sa.String(length=30), nullable=False),
         sa.Column("username", sa.String(length=30), nullable=False),
-        sa.Column("phone_number", sa.String(length=30), nullable=False),
-        sa.Column("email", sa.String(length=50), nullable=False),
-        sa.Column("role", sa.Enum("user", "admin", "moderator", name="userrole"), nullable=True),
+        sa.Column("hashed_password", sa.String(), nullable=False),
+        sa.Column("phone_number", sa.String(), nullable=False),
+        sa.Column("email", sa.String(), nullable=False),
+        sa.Column("role", sa.Enum("user", "admin", "moderator", name="userrole"), nullable=False),
         sa.Column("image_path", sa.String(), nullable=True),
-        sa.Column("is_blocked", sa.Boolean(), nullable=True),
+        sa.Column("is_blocked", sa.Boolean(), nullable=False),
         sa.Column("created_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False),
         sa.Column("modified_at", sa.DateTime(), server_default=sa.text("now()"), nullable=False),
         sa.Column("group_id", sa.Integer(), nullable=True),
