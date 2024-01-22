@@ -47,3 +47,20 @@ class UserFactory(AbstractFactory):
     modified_at = factory.LazyFunction(datetime.now)
     group = SubFactory(GroupFactory)
     group_id = factory.SelfAttribute("group.id")
+
+
+class UserFactoryNoHash:
+    id = LazyFunction(uuid.uuid4)
+    name = factory.Sequence(lambda n: "user%d" % n)
+    surname = factory.Sequence(lambda n: "surname%d" % n)
+    username = factory.LazyFunction(fake.user_name)
+    password = CryptContext(schemes=["bcrypt"], deprecated="auto").hash("test")
+    phone_number = factory.LazyFunction(fake.phone_number)
+    email = factory.LazyFunction(fake.email)
+    role = factory.Faker("random_element", elements=[elem.value for elem in UserRole])
+    image_path = None
+    is_blocked = False
+    created_at = factory.LazyFunction(datetime.now)
+    modified_at = factory.LazyFunction(datetime.now)
+    group = SubFactory(GroupFactory)
+    group_id = factory.SelfAttribute("group.id")

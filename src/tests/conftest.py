@@ -1,5 +1,6 @@
 import asyncio
 from typing import AsyncGenerator
+from unittest.mock import AsyncMock, patch
 
 import pytest
 import redis.asyncio as redis
@@ -121,6 +122,50 @@ main.app.dependency_overrides[connect_to_redis] = test_redis_connection
 
 
 @pytest.fixture(scope="function", autouse=True)
-def reset_factory_boy_sequences() -> None:
+async def reset_factory_boy_sequences() -> None:
     for factor in (GroupFactory, UserFactory):
         factor.reset_sequence()
+
+
+@pytest.fixture(scope="function", autouse=True)
+async def mock_session():
+    return AsyncMock()
+
+
+@pytest.fixture
+async def common_auth_patches():
+    with patch(
+        "src.repositories.repo_user.UserRepository.get_user_by_username"
+    ) as mock_get_user, patch(
+        "src.services.auth.auth_service.AuthService.verify_password"
+    ) as mock_verify_password, patch(
+        "src.services.auth.auth_service.AuthService.get_access_refresh_tokens"
+    ) as mock_get_tokens:
+        yield mock_get_user, mock_verify_password, mock_get_tokens
+
+
+@pytest.fixture
+async def username():
+    return "username"
+
+
+@pytest.fixture
+async def password():
+    return "password"
+
+
+@pytest.fixture
+async def mock_redis():
+    return AsyncMock()
+
+
+@pytest.fixture
+async def user_detail():
+    data = {
+        "name": "John",
+        "surname": "Doe",
+        "username": "johndoe",
+        "phone_number": "1234567890",
+        "email": "johndoe@example.com",
+    }
+    return data
