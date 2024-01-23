@@ -54,7 +54,7 @@ jobs:
 
       - name: Run tests
         env:
-          PORT: ${{ env.PORT }}
           DB_NAME: ${{ env.TEST_DB_NAME }}
-          TEST_REDIS_URL: ${{ job.services.redis.ports[6379] }}/2?decode_responses=True
+          TEST_REDIS_URL: ${{ env.TEST_REDIS_URL }}
+          POSTGRES_PASSWORD: ${{ env.PASSWORD }}
         run: poetry run pytest
