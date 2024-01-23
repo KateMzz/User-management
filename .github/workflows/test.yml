@@ -49,9 +49,6 @@ jobs:
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root
 
-      - name: Set up environment variables
-        run: cp .env.test .env
-
       - name: Run tests
         run: |
           source .venv/bin/activate
@@ -59,6 +56,6 @@ jobs:
           export DB_NAME=user_manager
           export DATABASE=postgresql+asyncpg
           export DB_USER=postgres
-          export PASSWORD=12345
           export HOST=localhost
+          export TEST_REDIS_URL=redis://localhost:6379/2?decode_responses=True
           pytest
