@@ -52,9 +52,6 @@ jobs:
       - name: Set up environment variables
         run: cp .env.test .env
 
-      - name: Create test database
-        run: createdb ${{ env.TEST_DB_NAME }}
-
       - name: Run tests
         env:
           PORT: ${{ env.PORT }}
