@@ -61,5 +61,4 @@ jobs:
           export DB_USER=postgres
           export PASSWORD=12345
           export HOST=localhost
-
-          python pytest
+          pytest
