@@ -55,4 +55,5 @@ jobs:
       - name: Run tests
         run: |
           source .venv/bin/activate
-          python -m pytest tests/
+          cd User-management
+          python -m pytest
