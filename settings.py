@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     MODE: str
     USER_ID: str
     TOKEN: str
+    RABBIT_MQ: str
 
     @property
     def database_url(self) -> str:
