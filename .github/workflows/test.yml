@@ -11,7 +11,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 12345
-          POSTGRES_DB: github_actions
+          POSTGRES_DB: user_manager
         ports:
           - 5432:5432
 
@@ -52,16 +52,13 @@ jobs:
       - name: Set up environment variables
         run: cp .env.test .env
 
+      - name: Create test database
+        run: createdb ${{ env.TEST_DB_NAME }}
+
       - name: Run tests
         env:
-          SECRET_KEY: "SECRET_KEY"
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 12345
-          DATABASE_HOST: 127.0.0.1
-          DATABASE_PORT: 5432
-          POSTGRES_DB: github_actions
-          REDIS_HOST: 127.0.0.1
-          REDIS_PORT: 6379
-        run: |
-          source .venv/bin/activate
-          pytest
+          HOST: ${{ job.services.postgres.ports[5432] }}
+          PORT: ${{ env.PORT }}
+          DB_NAME: ${{ env.TEST_DB_NAME }}
+          TEST_REDIS_URL: ${{ job.services.redis.ports[6379] }}/2?decode_responses=True
+        run: poetry run pytest
