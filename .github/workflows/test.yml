@@ -55,4 +55,11 @@ jobs:
       - name: Run tests
         run: |
           source .venv/bin/activate
-          pytest
+          export TEST_DB_NAME=test_user_manager
+          export DB_NAME=user_manager
+          export DATABASE=postgresql+asyncpg
+          export DB_USER=postgres
+          export PASSWORD=12345
+          export HOST=localhost
+
+          python pytest
