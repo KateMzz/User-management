@@ -27,11 +27,6 @@ class UserRepository(AsyncBase):
             handler = ExceptionHandler()
             handler.handle_unique_constraint_error(e)
 
-    async def get_user(self, user, query_field) -> Optional[str]:
-        query = select(User.hashed_password, User.id).filter(query_field == user.credentials)
-        result = (await self.session.execute(query)).one_or_none()
-        return result
-
     async def get_user_by_email(self, email) -> Optional[str]:
         query = select(User.email).filter(User.email == email)
         result = (await self.session.execute(query)).one_or_none()
@@ -44,20 +39,23 @@ class UserRepository(AsyncBase):
 
     async def row_to_dict(self, row) -> dict:
         result = {}
+        try:
+            for column in class_mapper(row.__class__).mapped_table.columns:
+                value = getattr(row, column.name)
 
-        for column in class_mapper(row.__class__).mapped_table.columns:
-            value = getattr(row, column.name)
+                if isinstance(value, Enum):
+                    result[column.name] = value.value
+                elif isinstance(value, UUID):
+                    result[column.name] = str(value)
+                elif isinstance(value, datetime):
+                    result[column.name] = value.isoformat()
+                else:
+                    result[column.name] = value
 
-            if isinstance(value, Enum):
-                result[column.name] = value.value
-            elif isinstance(value, UUID):
-                result[column.name] = str(value)
-            elif isinstance(value, datetime):
-                result[column.name] = value.isoformat()
-            else:
-                result[column.name] = value
-
-        return result
+            return result
+        except Exception as e:
+            handler = ExceptionHandler()
+            handler.handle_unique_constraint_error(e)
 
     async def get_user_by_id(self, user_id) -> Optional[str]:
         try:

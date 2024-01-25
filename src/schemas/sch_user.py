@@ -15,9 +15,9 @@ class UserDetail(BaseORMModel):
     username: str
     phone_number: str
     email: EmailStr
-    role: UserRole
-    image_path: Optional[str]
-    group_id: Optional[int]
+    role: UserRole = Field(default=UserRole.USER)
+    image_path: Optional[str] = Field(default=None)
+    group_id: Optional[int] = Field(default=None)
 
 
 class UserDetailUpdate(BaseORMModel):
