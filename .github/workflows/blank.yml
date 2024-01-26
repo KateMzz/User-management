@@ -37,7 +37,7 @@ jobs:
             options: "--check"
             src: "./src"
       - name: Ruff
-        uses: chartboost/ruff-action@v1
+        uses: chartboost/ruff-action@0.0.291
         with:
           src: "./src"
           version: 0.0.259
