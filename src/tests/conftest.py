@@ -61,7 +61,7 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
 
 
 async def test_redis_connection():
-    redis_resp = await redis.from_url("redis://localhost:6379/2?decode_responses=True")
+    redis_resp = await redis.from_url(settings.TEST_REDIS_URL)
     try:
         yield redis_resp
     finally:
