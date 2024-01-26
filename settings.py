@@ -30,6 +30,10 @@ class Settings(BaseSettings):
     USER_ID: str
     TOKEN: str
     RABBIT_MQ: str
+    AWS_ACCESS_KEY_ID: str
+    AWS_SECRET_ACCESS_KEY: str
+    AWS_REGION_NAME: str
+    AWS_S3_BUCKET_NAME: str
 
     @property
     def database_url(self) -> str:
