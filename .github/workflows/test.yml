@@ -11,7 +11,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: user_manager
+          POSTGRES_DB: test_user_manager
         ports:
           - 5432:5432
 
@@ -48,30 +48,6 @@ jobs:
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: poetry install --no-interaction --no-root
-
-      - name: Set up environment variables
-        run: |
-          echo "LOGGING_LEVEL=DEBUG" >> .env
-          echo "DATABASE=postgresql+asyncpg" >> .env
-          echo "DB_USER=postgres" >> .env
-          echo "PASSWORD=postgres" >> .env
-          echo "HOST=localhost" >> .env
-          echo "PORT=5432" >> .env
-          echo "DB_NAME=user_manager" >> .env
-          echo "TEST_DB_NAME=test_user_manager" >> .env
-          echo "SECRET_KEY=d4954e9fc9d428d6f3cd1e2b9776aeeef91cc94abc879f940b129bcbbc33ef5a" >> .env
-          echo "ALGORITHM=HS256" >> .env
-          echo "ACCESS_TOKEN_EXPIRE_MINUTES=30" >> .env
-          echo "REFRESH_TOKEN_EXPIRE_DAYS=2" >> .env
-          echo "REDIS_URL=redis://localhost:6379?decode_responses=True" >> .env
-          echo "TEST_REDIS_URL=redis://localhost:6379/2?decode_responses=True" >> .env
-          echo "SMTP_SERVER=mail.address.com" >> .env
-          echo "SMTP_PORT=900" >> .env
-          echo "SMTP_USERNAME=polybank@andersenlab.com" >> .env
-          echo "SMTP_PASSWORD=smtp_password" >> .env
-          echo "MODE=DEV" >> .env
-          echo "USER_ID=7cac12b6-219c-4117-889b-a22c00b8b858" >> .env
-          echo "TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiN2NhYzEyYjYtMjE5Yy00MTE3LTg4OWItYTIyYzAwYjhiODU4IiwiZXhwIjoxNzA2MDUyMzYzfQ.IM5jNPZr-5eGQI0cw3qYRHNr41jipmDxzzPG746a0xE" >> .env
 
       - name: Run tests
         env:
