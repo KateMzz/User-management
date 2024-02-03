@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from starlette.responses import JSONResponse
 
+from src.rabbitmq.producer import publish_reset_password_message
 from src.repositories.repo_user import UserRepository
 from src.schemas.sch_user import ResetPasswordRequest
 from utils.db_connection import get_async_session
@@ -23,4 +24,5 @@ async def reset_password(
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST, content={"message": "Wrong email"}
         )
-    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Success!"})
+    await publish_reset_password_message(input.email)
+    return JSONResponse(status_code=status.HTTP_200_OK, content={"message": "Check your email"})

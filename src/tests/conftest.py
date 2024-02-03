@@ -61,7 +61,7 @@ async def ac() -> AsyncGenerator[AsyncClient, None]:
 
 
 async def test_redis_connection():
-    redis_resp = await redis.from_url("redis://localhost:6379/2?decode_responses=True")
+    redis_resp = await redis.from_url(settings.TEST_REDIS_URL)
     try:
         yield redis_resp
     finally:
@@ -118,9 +118,6 @@ async def create_group(async_test_session):
     return new_group
 
 
-main.app.dependency_overrides[connect_to_redis] = test_redis_connection
-
-
 @pytest.fixture(scope="function", autouse=True)
 async def reset_factory_boy_sequences() -> None:
     for factor in (GroupFactory, UserFactory):
@@ -169,3 +166,6 @@ async def user_detail():
         "email": "johndoe@example.com",
     }
     return data
+
+
+main.app.dependency_overrides[connect_to_redis] = test_redis_connection
