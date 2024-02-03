@@ -26,6 +26,7 @@ class UserDetailUpdate(BaseORMModel):
     username: Optional[str] = None
     phone_number: Optional[str] = None
     email: Optional[EmailStr] = None
+    image_path: Optional[str] = Field(default=None)
     modified_at: datetime = Field(default=datetime.now())
 
 
@@ -39,6 +40,7 @@ class UserCreate(BaseORMModel):
     confirm_password: str
     role: UserRole = Field(default=UserRole.USER)
     group_id: Optional[int] = None
+    image_path: Optional[str] = None
 
     @field_validator("phone_number")
     @classmethod
